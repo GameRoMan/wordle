@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -104,11 +105,11 @@
   <button id="new-game-button">New Game</button>
   <script>
     (function() {
-      let GG_ALL_GAME_CONFIG = {
+      const GG_ALL_GAME_CONFIG = {
         maxGuesses: 6, // Maximum number of guesses allowed
         wordLength: 5, // Length of the word to guess
-        guessesListUrl: 'https://www.aeio.win/guesses.txt',
-        answersListUrl: 'https://www.aeio.win/answers.txt',
+        guessesListUrl: 'https://gameroman.pages.dev/games/wordle/data/guesses.txt',
+        answersListUrl: 'https://gameroman.pages.dev/games/wordle/data/answers.txt',
         webhookUrl: 'https://webhooks.gameroman.workers.dev/send/wordle/result',
         notificationUrl: 'https://webhooks.gameroman.workers.dev/send/wordle/play',
       };
