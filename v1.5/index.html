@@ -1,0 +1,764 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta name="referrer" content="no-referrer-when-downgrade">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Wordle</title>
+  <style>
+    * {
+      user-select: none;
+      -webkit-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+      touch-action: manipulation;
+    }
+
+    :root {
+      /* Fonts */
+      --font-family: Arial, sans-serif;
+      --title-font-family: 'Courier New', Courier, monospace;
+      /* Colors */
+      --background-color-light: #f0f0f0;
+      --text-color-light: #1a1a1a;
+      --background-color-dark: #1a1a1a;
+      --text-color-dark: #f0f0f0;
+      --tile-border-color: #ccc;
+      --key-color: black;
+      --key-background-color: #d3d6da;
+      --key-hover-background-color: #bbb;
+      --correct-color: #6aaa64;
+      --present-color: #c9b458;
+      --absent-color: #787c7e;
+      --button-color: #4CAF50;
+      --button-hover-color: #45a049;
+      --settings-background-color-light: #f9f9f9;
+      --settings-background-color-dark: #2a2a2a;
+      --setting-select-border-color: #ccc;
+      --setting-select-focus-color: #4CAF50;
+      --setting-select-background-color-light: #fff;
+      --setting-select-color-light: #333;
+      --setting-select-background-color-dark: #3a3a3a;
+      --setting-select-color-dark: #f0f0f0;
+      --setting-select-border-color-dark: #555;
+      --setting-select-box-shadow: 0 0 5px rgba(76, 175, 80, 0.5);
+      /* Sizes */
+      --game-title-font-size: min(34px, 8vw, 4vh);
+      --top-bar-height: min(60px, 15vw, 8vh);
+      --top-bar-margin-bottom: 20px;
+      --top-bar-buttons-div-gap: min(10px, 3vw);
+      --top-bar-button-size: min(30px, 8vw, 4vh);
+      --top-bar-button-padding: min(4px, 1vw);
+      --settings-group-margin-bottom: min(15px, 4vw, 2vh);
+      --setting-select-width: min(130px, 35vw);
+      --setting-select-padding: min(8px, 2vw);
+      --setting-select-font-size: min(16px, 4vw);
+      --setting-select-border-radius: 5px;
+      --setting-label-font-size: min(24px, 6vw);
+      --new-game-button-margin-top: 20px;
+      --new-game-button-padding: 10px 20px;
+      --new-game-button-font-size: 18px;
+      --keyboard-gap: 5px;
+      --key-size: min(40px, 8vw, 6vh);
+      --key-font-size: min(24px, 6vw);
+      --enter-key-font-size: min(32px, 8vw);
+      --game-board-gap: 5px;
+      --tile-width: min(60px, 15vw, 8vh);
+      --tile-height: min(60px, 15vw, 8vh);
+      --tile-font-size: min(32px, 8vw, 4vh);
+      --content-max-width: 450px;
+    }
+
+    body {
+      font-family: var(--font-family);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      background-color: var(--background-color-light);
+      color: var(--text-color-light);
+      transition: background-color 0.3s, color 0.3s;
+      cursor: default;
+      margin: 0;
+      padding: 0;
+    }
+
+    body.dark-mode {
+      background-color: var(--background-color-dark);
+      color: var(--text-color-dark);
+    }
+
+    #main-container {
+      display: flex;
+      width: 95%;
+      flex-direction: column;
+      align-items: center;
+      max-width: var(--content-max-width);
+      margin: 0 auto;
+    }
+
+    .content-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 100%;
+      max-width: var(--content-max-width);
+      margin: 0 auto;
+    }
+
+    #home-container,
+    #settings-container {
+      display: none;
+    }
+
+    #top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      height: var(--top-bar-height);
+      border-bottom: 1px solid var(--tile-border-color);
+      width: 100%;
+      max-width: var(--content-max-width);
+      margin: 0 0 var(--top-bar-margin-bottom) 0;
+      position: relative;
+      padding: 0 10px;
+      box-sizing: border-box;
+    }
+
+    .dark-mode #top-bar {
+      border-bottom-color: var(--text-color-dark);
+    }
+
+    #game-board {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: var(--game-board-gap);
+      margin-bottom: 20px;
+    }
+
+    .tile {
+      width: var(--tile-width);
+      height: var(--tile-height);
+      border: 2px solid var(--tile-border-color);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: var(--tile-font-size);
+      font-weight: bold;
+      text-transform: uppercase;
+    }
+
+    #keyboard {
+      display: grid;
+      grid-template-columns: repeat(10, 1fr);
+      gap: var(--keyboard-gap);
+    }
+
+    .key {
+      color: var(--key-color);
+      border: none;
+      background-color: var(--key-background-color);
+      font-size: var(--key-font-size);
+      font-weight: bold;
+      cursor: pointer;
+      width: var(--key-size);
+      height: var(--key-size);
+      padding: 0;
+    }
+
+    .key:hover {
+      background-color: var(--key-hover-background-color);
+    }
+
+    .correct,
+    .present,
+    .absent {
+      color: white;
+    }
+
+    .correct {
+      background-color: var(--correct-color);
+    }
+
+    .present {
+      background-color: var(--present-color);
+    }
+
+    .absent {
+      background-color: var(--absent-color);
+    }
+
+    #new-game-button {
+      margin-top: var(--new-game-button-margin-top);
+      padding: var(--new-game-button-padding);
+      font-size: var(--new-game-button-font-size);
+      background-color: var(--button-color);
+      color: white;
+      border: none;
+      cursor: pointer;
+      display: none;
+    }
+
+    #new-game-button:hover {
+      background-color: var(--button-hover-color);
+    }
+
+    #game-title {
+      margin: 0;
+      font-size: var(--game-title-font-size);
+      text-align: center;
+      font-family: var(--title-font-family);
+      font-weight: bold;
+      letter-spacing: 2px;
+    }
+
+    .top-bar-button {
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: var(--top-bar-button-padding);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform 0.3s ease;
+    }
+
+    .top-bar-button:hover {
+      transform: scale(1.1);
+    }
+
+    .top-bar-button svg {
+      width: var(--top-bar-button-size);
+      height: var(--top-bar-button-size);
+    }
+
+    body.dark-mode .top-bar-button svg {
+      stroke: var(--text-color-dark);
+    }
+
+    .setting-group {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      margin-bottom: var(--settings-group-margin-bottom);
+      width: 100%;
+    }
+
+    .setting-label {
+      font-weight: bold;
+      font-size: var(--setting-label-font-size);
+    }
+
+    .setting-select {
+      width: var(--setting-select-width);
+      padding: var(--setting-select-padding);
+      font-size: var(--setting-select-font-size);
+      border: 1px solid var(--setting-select-border-color);
+      border-radius: var(--setting-select-border-radius);
+      background-color: var(--setting-select-background-color-light);
+      color: var(--setting-select-color-light);
+    }
+
+    .dark-mode .setting-select {
+      background-color: var(--setting-select-background-color-dark);
+      color: var(--setting-select-color-dark);
+      border-color: var(--setting-select-border-color-dark);
+    }
+
+    .setting-select:focus {
+      outline: none;
+      border-color: var(--setting-select-focus-color);
+      box-shadow: var(--setting-select-box-shadow);
+    }
+
+    .dark-mode .setting-select:focus {
+      border-color: var(--correct-color);
+      box-shadow: var(--setting-select-box-shadow);
+    }
+
+    .top-bar-buttons-div {
+      display: flex;
+      flex-direction: row;
+      gap: var(--top-bar-buttons-div-gap);
+    }
+  </style>
+</head>
+
+<body>
+  <div id="main-container">
+    <div id="top-bar">
+      <div class="top-bar-buttons-div">
+        <button id="home-button" class="top-bar-button">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+            <polyline points="9 22 9 12 15 12 15 22"></polyline>
+          </svg>
+        </button>
+        <button id="play-button" class="top-bar-button">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polygon points="5 3 19 12 5 21 5 3"></polygon>
+          </svg>
+        </button>
+      </div>
+      <h1 id="game-title">Wordle</h1>
+      <div class="top-bar-buttons-div">
+        <button id="stats-button" class="top-bar-button">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="20" x2="18" y2="10"></line>
+            <line x1="12" y1="20" x2="12" y2="4"></line>
+            <line x1="6" y1="20" x2="6" y2="14"></line>
+          </svg>
+        </button>
+        <button id="settings-button" class="top-bar-button">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="3"></circle>
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+          </svg>
+        </button>
+      </div>
+    </div>
+    <div id="settings-container" class="content-container">
+      <div class="setting-group">
+        <label for="theme-select" class="setting-label">Theme</label>
+        <select id="theme-select" class="setting-select">
+          <option value="light">Light</option>
+          <option value="dark">Dark</option>
+          <option value="system">System</option>
+        </select>
+      </div>
+      <div class="setting-group">
+        <label for="keyboard-layout-select" class="setting-label">Keyboard Type</label>
+        <select id="keyboard-layout-select" class="setting-select">
+          <option value="QWERTY">QWERTY</option>
+          <option value="AZERTY">AZERTY</option>
+        </select>
+      </div>
+      <div class="setting-group">
+        <label for="submit-button-type-select" class="setting-label">Submit Button Type</label>
+        <select id="submit-button-type-select" class="setting-select">
+          <option value="ENTER">ENTER</option>
+          <option value="SUBMIT">SUBMIT</option>
+        </select>
+      </div>
+    </div>
+    <div id="home-container" class="content-container">
+      <p>Home screen will be here</p>
+      <button id="start-game-from-home">Play</button>
+    </div>
+    <div id="game-container" class="content-container">
+      <div id="game-board"></div>
+      <div id="keyboard"></div>
+      <button id="new-game-button">New Game</button>
+    </div>
+  </div>
+  <script>
+    (function() {
+      const GG_ALL_GAME_CONFIG = {
+        maxGuesses: 6, // Maximum number of guesses allowed
+        wordLength: 5, // Length of the word to guess
+        guessesListUrl: 'https://gameroman.pages.dev/games/wordle/data/guesses.txt',
+        answersListUrl: 'https://gameroman.pages.dev/games/wordle/data/answers.txt',
+        webhookUrl: 'https://webhooks.gameroman.workers.dev/send/wordle/result',
+        notificationUrl: 'https://webhooks.gameroman.workers.dev/send/wordle/play',
+        keyboardLayouts: {
+          'QWERTY': [
+            'QWERTYUIOP',
+            'ASDFGHJKL',
+            'ZXCVBNM'
+          ],
+          'AZERTY': [
+            'AZERTYUIOP',
+            'QSDFGHJKLM',
+            'WXCVBN'
+          ]
+        }
+      };
+      //
+      let gameState = {
+        currentRow: 0, // Current row being filled
+        currentTile: 0, // Current tile being filled
+        gameOver: false, // Game over flag
+        userHandle: null,
+        secretWord: '',
+        guesses: [],
+        theme: 'system',
+        keyboardLayout: 'QWERTY',
+        submitButtonType: 'ENTER'
+      };
+
+      function initializeGame() {
+        gameState.gameOver = false;
+        gameState.currentRow = 0;
+        gameState.currentTile = 0;
+        gameState.guesses = [];
+        gameState.secretWord = GG_ALL_GAME_CONFIG.answers[Math.floor(Math.random() * GG_ALL_GAME_CONFIG.answers.length)];
+        createGameBoard();
+        createKeyboard();
+        document.getElementById('new-game-button').style.display = 'none';
+      }
+
+      function openSection(sectionName) {
+        const sections = ['home', 'settings', 'game'];
+        sections.forEach(section => {
+          const container = document.getElementById(`${section}-container`);
+          if (container) {
+            if (section === sectionName) {
+              container.style.display = 'flex';
+            } else {
+              container.style.display = 'none';
+            }
+          }
+        });
+      }
+
+      function createGameBoard() {
+        const gameBoard = document.getElementById('game-board');
+        gameBoard.innerHTML = '';
+        for (let i = 0; i < GG_ALL_GAME_CONFIG.maxGuesses; i++) {
+          for (let j = 0; j < GG_ALL_GAME_CONFIG.wordLength; j++) {
+            const tile = document.createElement('div');
+            tile.classList.add('tile');
+            gameBoard.appendChild(tile);
+          }
+        }
+      }
+
+      function submitGuess() {
+        const guess = gameState.guesses[gameState.currentRow].toLowerCase();
+        if (!GG_ALL_GAME_CONFIG.guesses.includes(guess)) {
+          alert(`Word ${guess.toUpperCase()} does not exist`);
+          return;
+        }
+        if (guess === gameState.secretWord) {
+          colorTiles();
+          gameState.gameOver = true;
+          sendDiscordMessage('yes');
+          showNewGameButton();
+        } else {
+          colorTiles();
+          if (gameState.currentRow === GG_ALL_GAME_CONFIG.maxGuesses - 1) {
+            alert(`Game over! The word was ${gameState.secretWord.toUpperCase()}`);
+            gameState.gameOver = true;
+            sendDiscordMessage('no');
+            showNewGameButton();
+          } else {
+            gameState.currentRow++;
+            gameState.currentTile = 0;
+          }
+        }
+      }
+
+      function showNewGameButton() {
+        document.getElementById('new-game-button').style.display = 'block';
+      }
+
+      function colorTiles() {
+        const tiles = document.querySelectorAll('.tile');
+        const guess = gameState.guesses[gameState.currentRow].toLowerCase();
+        const rowTiles = [...tiles].slice(gameState.currentRow * GG_ALL_GAME_CONFIG.wordLength, (gameState.currentRow + 1) * GG_ALL_GAME_CONFIG.wordLength);
+        //
+        const letterCounts = [...gameState.secretWord].reduce((res, char) => (res[char] = (res[char] || 0) + 1, res), {});
+        //
+        rowTiles.forEach((tile, index) => {
+          const letter = guess[index];
+          const correctLetter = gameState.secretWord[index];
+          //
+          if (letter === correctLetter) {
+            tile.classList.add('correct');
+            letterCounts[letter]--;
+          } else if (letterCounts[letter] > 0) {
+            tile.classList.add('present');
+            letterCounts[letter]--;
+          } else {
+            tile.classList.add('absent');
+          }
+        });
+        //
+        rowTiles.forEach((tile, index) => {
+          const letter = guess[index];
+          const correctLetter = gameState.secretWord[index];
+          //
+          if ((letter !== correctLetter) && (letterCounts[letter] < 0)) {
+            tile.classList.remove('present');
+            tile.classList.add('absent');
+          }
+        });
+        //
+        const keys = document.querySelectorAll('.key');
+        guess.split('').forEach((letter, index) => {
+          const keyElement = [...keys].find(key => key.textContent === letter.toUpperCase());
+          if (letter === gameState.secretWord[index]) {
+            keyElement.classList.add('correct');
+            keyElement.classList.remove('present');
+          } else if (gameState.secretWord.includes(letter)) {
+            if (!keyElement.classList.contains('correct')) {
+              keyElement.classList.add('present');
+            }
+          } else {
+            keyElement.classList.add('absent');
+          }
+        });
+      }
+      //
+      async function fetchWords() {
+        try {
+          const responseGuesses = await fetch(GG_ALL_GAME_CONFIG.guessesListUrl);
+          const responseAnswers = await fetch(GG_ALL_GAME_CONFIG.answersListUrl);
+          //
+          if (!responseGuesses.ok) {
+            throw new Error("Network response for Guesses was not ok");
+          }
+          if (!responseAnswers.ok) {
+            throw new Error("Network response for Answers was not ok");
+          }
+          //
+          const guesses = await responseGuesses.text();
+          const answers = await responseAnswers.text();
+          //
+          GG_ALL_GAME_CONFIG.guesses = guesses.split("\n").map(word => word.trim());
+          GG_ALL_GAME_CONFIG.answers = answers.split("\n").map(word => word.trim());
+          //
+          GG_ALL_GAME_CONFIG.guesses = GG_ALL_GAME_CONFIG.guesses.concat(GG_ALL_GAME_CONFIG.answers);
+        } catch (error) {
+          console.error("Error fetching words:", error);
+        }
+        //
+        initializeGame();
+      }
+      //
+      function getUsernameUrl(handle) {
+        if (!handle || handle.startsWith('anon_')) return '\`An anonymous user\`';
+        return `[\`@${handle}\`](<https://www.wildwest.gg/u/${handle}>)`
+      }
+
+      function getWebhookUrl(id) {
+        return ((id === 'play') ? GG_ALL_GAME_CONFIG.notificationUrl : GG_ALL_GAME_CONFIG.webhookUrl);
+      }
+
+      function getMessage(id) {
+        const usernameUrl = getUsernameUrl(gameState.userHandle);
+        //
+        switch (id) {
+          case 'play':
+            return `${usernameUrl} started playing [\`Wordle\`](<https://www.wildwest.gg/g/n4H5KifWXxde>)`;
+          case 'yes':
+            return `${usernameUrl} guessed the word \`${gameState.secretWord.toUpperCase()}\` ✅`;
+          case 'no':
+            return `${usernameUrl} did not guess the word \`${gameState.secretWord.toUpperCase()}\` ❌`;
+          default:
+            return 'Unknown';
+        }
+      }
+      //
+      function getDiscordMessage(id) {
+        const webhookUrl = getWebhookUrl(id);
+        const message = getMessage(id);
+        //
+        const body = JSON.stringify({
+          content: message,
+        });
+        //
+        return [
+          webhookUrl,
+          body
+        ];
+      }
+      //
+      async function sendDiscordMessage(id) {
+        const [webhookUrl, body] = getDiscordMessage(id);
+        //
+        const response = await fetch(
+          webhookUrl, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: body
+          }
+        );
+        //
+        return response;
+      }
+      //
+      function requestUserHandle() {
+        window.parent.postMessage({
+          type: 'REQUEST_USER_HANDLE_EVENT'
+        }, '*');
+      }
+      //
+      window.addEventListener('message', (event) => {
+        const {
+          type,
+          handle,
+        } = event.data;
+        if (type === 'RESPONSE_USER_HANDLE_EVENT') {
+          if (!handle) return;
+          if (gameState.userHandle) return;
+          //
+          gameState.userHandle = handle;
+          sendDiscordMessage('play');
+        }
+      });
+      //
+      document.addEventListener('keydown', (event) => {
+        if (event.key === 'Enter') {
+          handleKeyPress('Enter');
+        } else if (event.key === 'Backspace') {
+          handleKeyPress('Delete');
+        } else if (event.key.match(/^[a-zA-Z]$/)) {
+          handleKeyPress(event.key.toUpperCase());
+        }
+      });
+      //
+      document.getElementById('new-game-button').addEventListener('click', () => {
+        initializeGame();
+      });
+
+      function addKeyToKeybaord(KeyLabel, keyName, x = 1, y = 1) {
+        const buttonElement = document.createElement('button');
+        buttonElement.textContent = KeyLabel;
+        buttonElement.classList.add('key');
+        buttonElement.addEventListener('click', () => handleKeyPress(keyName));
+        if (x > 1) {
+          buttonElement.style.gridColumn = `span ${x}`;
+          buttonElement.style.width = `calc(var(--key-size) * ${x} + var(--keyboard-gap))`;
+        }
+        if (y > 1) {
+          buttonElement.style.gridRow = `span ${y}`
+          buttonElement.style.height = `calc(var(--key-size) * ${y} + var(--keyboard-gap))`;
+        }
+        keyboard.appendChild(buttonElement);
+      }
+
+      function createKeyboard() {
+        const keyboard = document.getElementById('keyboard');
+        keyboard.innerHTML = '';
+        const keyboardLayout = GG_ALL_GAME_CONFIG.keyboardLayouts[gameState.keyboardLayout];
+        //
+        for (let key of keyboardLayout[0]) {
+          addKeyToKeybaord(key, key);
+        }
+        for (let key of keyboardLayout[1]) {
+          addKeyToKeybaord(key, key);
+        }
+        if (gameState.keyboardLayout === 'QWERTY') {
+          addKeyToKeybaord('↵', 'Enter', 1, 2);
+        } else if (gameState.keyboardLayout === 'AZERTY') {
+          addKeyToKeybaord('↵', 'Enter', 2, 1);
+        }
+        for (let key of keyboardLayout[2]) {
+          addKeyToKeybaord(key, key);
+        }
+        addKeyToKeybaord('⌫', 'Delete', 2, 1);
+      }
+
+      function handleKeyPress(key) {
+        if (gameState.gameOver) return;
+        if (key === 'Enter') {
+          if (gameState.currentTile === GG_ALL_GAME_CONFIG.wordLength) {
+            submitGuess();
+          }
+        } else if (key === 'Delete') {
+          if (gameState.currentTile > 0) {
+            gameState.currentTile--;
+            const tiles = document.querySelectorAll('.tile');
+            const currentTile = tiles[gameState.currentRow * GG_ALL_GAME_CONFIG.wordLength + gameState.currentTile];
+            currentTile.textContent = '';
+            gameState.guesses[gameState.currentRow] = gameState.guesses[gameState.currentRow].slice(0, -1);
+          }
+        } else if (gameState.currentTile < GG_ALL_GAME_CONFIG.wordLength) {
+          const tiles = document.querySelectorAll('.tile');
+          const currentTile = tiles[gameState.currentRow * GG_ALL_GAME_CONFIG.wordLength + gameState.currentTile];
+          currentTile.textContent = key;
+          gameState.guesses[gameState.currentRow] = (gameState.guesses[gameState.currentRow] || '') + key;
+          gameState.currentTile++;
+        }
+      }
+
+      function setTheme(theme) {
+        gameState.theme = theme;
+        document.body.classList.remove('dark-mode');
+        document.getElementById('settings-container').classList.remove('dark-mode');
+        if (theme === 'dark' || (theme === 'system' && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+          document.body.classList.add('dark-mode');
+          document.getElementById('settings-container').classList.add('dark-mode');
+        }
+      }
+
+      function initializeTheme() {
+        const themeSelect = document.getElementById('theme-select');
+        themeSelect.value = gameState.theme;
+        setTheme(gameState.theme);
+      }
+
+      function setKeyboardLayout(keyboardLayout) {
+        gameState.keyboardLayout = keyboardLayout;
+        createKeyboard();
+      }
+
+      function initializeKeyboardLayout() {
+        const keyboardLayoutSelect = document.getElementById('keyboard-layout-select');
+        keyboardLayoutSelect.value = gameState.keyboardLayout;
+      }
+
+      function setSubmitButtonType(submitButtonType) {
+        gameState.submitButtonType = submitButtonType;
+        console.log(`Submit button type changed to ${submitButtonType}`);
+        createKeyboard();
+      }
+
+      function initializeSubmitButtonType() {
+        const submitButtonTypeSelect = document.getElementById('submit-button-type-select');
+        submitButtonTypeSelect.value = gameState.submitButtonType;
+      }
+      /*
+
+
+      */
+      // Settings
+      document.getElementById('theme-select').addEventListener('change', (event) => {
+        setTheme(event.target.value);
+      });
+      document.getElementById('keyboard-layout-select').addEventListener('change', (event) => {
+        setKeyboardLayout(event.target.value);
+      });
+      document.getElementById('submit-button-type-select').addEventListener('change', (event) => {
+        setSubmitButtonType(event.target.value);
+      });
+      //
+      // Top bar
+      document.getElementById('home-button').addEventListener('click', () => {
+        openSection('home');
+      });
+      document.getElementById('play-button').addEventListener('click', () => {
+        openSection('game');
+      });
+      document.getElementById('stats-button').addEventListener('click', () => {
+        openSection('stats');
+      });
+      document.getElementById('settings-button').addEventListener('click', () => {
+        openSection('settings');
+      });
+      //
+      //
+      document.getElementById('start-game-from-home').addEventListener('click', () => {
+        openSection('game');
+      });
+      window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', event => {
+        if (gameState.theme === 'system') {
+          setTheme('system');
+        }
+      });
+      //
+      // Game initialization
+      requestUserHandle();
+      fetchWords();
+      initializeTheme();
+      initializeKeyboardLayout();
+      initializeSubmitButtonType();
+    })();
+  </script>
+
+</body>
+
+</html>
