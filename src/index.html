@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta name="referrer" content="no-referrer-when-downgrade">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+  <title>Wordle - Word Puzzle Game</title>
+
+  <meta name="description" content="Play Wordle, the popular daily word puzzle game. Guess the hidden five-letter word in six tries. Enjoy unlimited games or a new daily challenge.">
+  <meta name="author" content="GameRoMan">
+
+  <meta property="og:title" content="Wordle - Daily and Unlimited Word Puzzle Game">
+  <meta property="og:description" content="Challenge yourself with Wordle, the addictive daily word puzzle. Enjoy unlimited games or a new daily challenge. Play now on https://gameroman.pages.dev/games/wordle">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://gameroman.pages.dev/games/wordle">
+  <meta property="og:image" content="image.svg">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Wordle - Daily and Unlimited Word Puzzle Game">
+  <meta name="twitter:description" content="Challenge yourself with Wordle, the addictive daily word puzzle. Enjoy unlimited games or a new daily challenge. Play now on https://gameroman.pages.dev/games/wordle">
+  <meta name="twitter:image" content="https://gameroman.pages.dev/games/wordle/image.svg">
+
+  <link rel="canonical" href="https://gameroman.pages.dev/games/wordle">
+  <link rel="shortcut icon" href="image.svg" type="image/x-icon">
+  
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+  <div id="main-container">
+    <div id="top-bar">
+      <div class="top-bar-buttons-div">
+        <button id="menu-button" class="top-bar-button">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="3" y1="12" x2="21" y2="12"></line>
+            <line x1="3" y1="6" x2="21" y2="6"></line>
+            <line x1="3" y1="18" x2="21" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+      <h1 id="game-title">Wordle</h1>
+      <div class="top-bar-buttons-div">
+        <button id="stats-button" class="top-bar-button">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="20" x2="18" y2="10"></line>
+            <line x1="12" y1="20" x2="12" y2="4"></line>
+            <line x1="6" y1="20" x2="6" y2="14"></line>
+          </svg>
+        </button>
+        <button id="settings-button" class="top-bar-button">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="3"></circle>
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+          </svg>
+        </button>
+      </div>
+    </div>
+    <div id="menu-container" class="content-container">
+      <button id="play-daily" class="content-button">Play Daily</button>
+      <button id="play-unlimited" class="content-button">Play Unlimited</button>
+    </div>
+    <div id="game-container" class="content-container">
+      <div id="game-board"></div>
+      <div id="keyboard"></div>
+      <button id="new-game-button" class="content-button">New Game</button>
+    </div>
+    <div id="stats-container" class="content-container">
+      <h2>Statistics</h2>
+      <div id="stats-grid">
+        <div class="stat-box">
+          <div class="stat-number" id="games-played">0</div>
+          <div class="stat-label">Played</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-number" id="win-percentage">0%</div>
+          <div class="stat-label">Win %</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-number" id="current-streak">0</div>
+          <div class="stat-label">Current Streak</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-number" id="max-streak">0</div>
+          <div class="stat-label">Max Streak</div>
+        </div>
+      </div>
+      <h3>Guess Distribution</h3>
+      <div id="guess-distribution"></div>
+    </div>
+    <div id="settings-container" class="content-container">
+      <div class="setting-group">
+        <label for="theme-select" class="setting-label">Theme</label>
+        <select id="theme-select" class="setting-select">
+          <option value="light">Light</option>
+          <option value="dark">Dark</option>
+          <option value="system">System</option>
+        </select>
+      </div>
+      <div class="setting-group">
+        <label for="keyboard-layout-select" class="setting-label">Keyboard Type</label>
+        <select id="keyboard-layout-select" class="setting-select">
+          <option value="QWERTY">QWERTY</option>
+          <option value="AZERTY">AZERTY</option>
+        </select>
+      </div>
+      <div class="setting-group">
+        <label for="submit-button-type-select" class="setting-label">Submit Button Type</label>
+        <select id="submit-button-type-select" class="setting-select">
+          <option value="ENTER">ENTER</option>
+          <option value="SUBMIT">SUBMIT</option>
+        </select>
+      </div>
+    </div>
+  </div>
+  
+  <script src="script.js"></script>
+</body>
+
+</html>
