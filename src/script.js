@@ -1,8 +1,8 @@
 const GG_ALL_GAME_CONFIG = {
     maxGuesses: 6, // Maximum number of guesses allowed
     wordLength: 5, // Length of the word to guess
-    guessesListUrl: 'https://gameroman.pages.dev/games/wordle/data/guesses.txt',
-    answersListUrl: 'https://gameroman.pages.dev/games/wordle/data/answers.txt',
+    guessesListUrl: 'data/guesses.txt',
+    answersListUrl: 'data/answers.txt',
     webhookPlayUrl: 'https://webhooks.gameroman.workers.dev/send/wordle/play',
     webhookResultUrl: 'https://webhooks.gameroman.workers.dev/send/wordle/result',
     keyboardLayouts: {
@@ -180,16 +180,15 @@ function getWebhookUrl(id) {
     return ((id === 'play') ? GG_ALL_GAME_CONFIG.webhookPlayUrl : GG_ALL_GAME_CONFIG.webhookResultUrl);
 }
 
-function getMessage(id) {    
+function getMessage(id) {
+    const name = `\`User from ${window.location.hostname}\``;
     switch (id) {
         case 'play':
-            return `🎮 \`User from gameroman.pages.dev\` started playing [\`Wordle\`](<https://gameroman.pages.dev/games/wordle>)`;
+            return `🎮 ${name} started playing [\`Wordle\`](<${window.location.href}>)`;
         case 'yes':
-            return `✅ \`User from gameroman.pages.dev\` guessed the word \`${gameState.secretWord.toUpperCase()}\` in \`${gameState.currentRow} attempts\``;
+            return `✅ ${name} guessed the word \`${gameState.secretWord.toUpperCase()}\` in \`${gameState.currentRow} attempts\``;
         case 'no':
-            return `❌ \`User from gameroman.pages.dev\ did not guess the word \`${gameState.secretWord.toUpperCase()}\``;
-        default:
-            return 'Unknown';
+            return `❌ ${name} did not guess the word \`${gameState.secretWord.toUpperCase()}\``;
     }
 }
 
